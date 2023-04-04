@@ -13,3 +13,14 @@ services:
     container_name: redis_insight
     ports:
       - "8001:8001"
+
+  processor:
+    build:
+      context: .
+    image: processor/prediction
+    container_name: init_processor
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+
