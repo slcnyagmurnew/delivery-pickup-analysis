@@ -1,18 +1,24 @@
 import math
+import os
+
 from redis import Redis
 import polyline
 import h3
 import requests
 from redisgraph import Graph
 
-r = Redis(
-    host="localhost",
-    port=6379
-)
 
-HOST = "***"
-PORT = 5000
-NUM_OF_ALTERNATIVES = 3
+OSRM_HOST = os.getenv("OSRM_HOST", default=None)
+OSRM_PORT = os.getenv("OSRM_PORT", default=None)
+NUM_OF_ALTERNATIVES = os.getenv("ROUTE_ALTERNATIVES")
+REDIS_HOST = os.getenv("REDIS_HOST")
+REDIS_PORT = int(os.getenv("REDIS_PORT"))
+
+
+r = Redis(
+    host=REDIS_HOST,
+    port=REDIS_PORT
+)
 
 
 def load_catboost_regressor_model():
@@ -52,7 +58,7 @@ def get_route(res_hex_id, del_hex_id):
     end_lat, end_lon = h3.h3_to_geo(del_hex_id)
 
     loc = "{},{};{},{}".format(start_lon, start_lat, end_lon, end_lat)
-    url = f"http://{HOST}:{PORT}/route/v1/driving/"
+    url = f"http://{OSRM_HOST}:{OSRM_PORT}/route/v1/driving/"
     opts = f"?alternatives={NUM_OF_ALTERNATIVES}"
 
     request = requests.get(url + loc + opts)  # send request to OSRM backend
@@ -162,7 +168,7 @@ if __name__ == '__main__':
         redis_con=r
     )
     hex_data = {"Restaurant_hex_id": "86603386fffffff",
-                "Delivery_hex_id": "866033807ffffff"}
+                "Delivery_hex_id": "8642ca85fffffff"}
 
     # predict with test data (has no real data)
     predicted_duration, exists = predict_delivery(
@@ -172,9 +178,9 @@ if __name__ == '__main__':
               "Vehicle_condition": 0, "multiple_deliveries": 2},
         hex_data=hex_data,
         graph=graph)
+    print(f"Duration value: {predicted_duration}")
     if exists:
         update_edge_of_graph(graph=graph, hex_data=hex_data, new_duration=predicted_duration)
-        print(predicted_duration)
     else:
         add_node_edge_to_graph(graph=graph, hex_data=hex_data, new_duration=predicted_duration)
     # check_location_pairs_exist_in_graph("8660a259fffffff", "8642ca85fffffff")
