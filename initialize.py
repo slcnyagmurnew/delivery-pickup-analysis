@@ -1,43 +1,44 @@
 import polars as pl
-from redisgraph import Graph, Node
+from redisgraph import Graph, Node, Edge
 import redis
+import os
+
+
+REDIS_HOST = os.getenv("REDIS_HOST")
+REDIS_PORT = int(os.getenv("REDIS_PORT"))
 
 
 r = redis.Redis(
-    host="localhost",
-    port=6379
+    host=REDIS_HOST,
+    port=REDIS_PORT
 )
 
 
-def construct_graph_with_nodes(data: pl.DataFrame):
+def construct_graph(data: pl.DataFrame):
     """
-    Add source nodes to Graph
+    Add source and destination nodes and edges between them, create graph
     :param data: dataframe
     :return:
     """
     unq_src_hex_id_list = data["Restaurant_hex_id"].unique()  # avoid duplication
-    for hex_id in unq_src_hex_id_list:  # row in a dictionary format
-        redis_graph.add_node(Node(label="source", properties={"hexId": hex_id}))
-
-    redis_graph.commit()
-    print(f"All source nodes` added to Graph with hex ids. \nSize: {len(redis_graph.nodes)}")
-
-
-def construct_graph_with_edges(data: pl.DataFrame):
-    """
-    Add edges between source nodes and destination nodes
-    :param data: dataframe
-    :return:
-    """
-    for row in data.rows(named=True):
-        print(row["Time_median"])
-        params = {"duration": row["Time_median"], "source_hex_id": row["Restaurant_hex_id"],
-                  "destination_hex_id": row["Delivery_hex_id"]}
-        query = """MATCH (s: source) 
-                    WHERE s.hexId = $source_hex_id 
-                    CREATE (s)-[d:delivery {duration:$duration}]->(:destination {hexId:$destination_hex_id})"""
-        redis_graph.query(q=query, params=params, timeout=10)
-        # result.pretty_print()  slow...
+    for src_hex_id in unq_src_hex_id_list:
+        src_node = Node(label="source", properties={"hexId": src_hex_id})
+        redis_graph.add_node(src_node)
+        destinations = data.filter(pl.col("Restaurant_hex_id") == src_hex_id)
+        for row in destinations.rows(named=True):
+            dst_node = Node(label="destination", properties={"hexId": row["Delivery_hex_id"]})
+            redis_graph.add_node(dst_node)
+            redis_graph.add_edge(Edge(src_node=src_node, relation="delivery",
+                                      properties={"duration": row["Time_median"]},
+                                      dest_node=dst_node))
+            """Always duplicated source and destination nodes so not used"""
+            # params = {"duration": row["Time_median"], "source_hex_id": row["Restaurant_hex_id"],
+            #           "destination_hex_id": row["Delivery_hex_id"]}
+            # query = """CREATE (s: source {hexId: $source_hex_id})-
+            # [:delivery {duration:$duration}]->(g: destination {hexId: $destination_hex_id})"""
+            # redis_graph.query(q=query, params=params, timeout=10)
+            # result.pretty_print()  slow...
+    print("Redis Graph is constructed with all nodes and their relations..")
     redis_graph.commit()
 
 
@@ -52,6 +53,7 @@ def group_data_with_sources_and_destinations(data: pl.DataFrame) -> pl.DataFrame
         data.lazy()
         .groupby(by=["Restaurant_hex_id", "Delivery_hex_id"])
         .agg(aggs=[pl.median("Time_taken(min)").alias("Time_median")])
+        .sort("Restaurant_hex_id")
     )
     dataframe = q.collect()
     print(dataframe.head(n=5))
@@ -67,5 +69,4 @@ if __name__ == '__main__':
 
     df = pl.read_csv("data/processed_data.csv")
     grouped_data = group_data_with_sources_and_destinations(data=df)
-    construct_graph_with_nodes(data=grouped_data)
-    construct_graph_with_edges(data=grouped_data)
+    construct_graph(data=grouped_data)
