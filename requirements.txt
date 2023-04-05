@@ -1,7 +1,9 @@
 catboost==1.1.1
+fastapi==0.95.0
 h3==3.7.6
 polars==0.16.18
 polyline==2.0.0
 redis==3.5.3
 redisgraph==2.4.4
 requests==2.28.2
+uvicorn==0.21.1
