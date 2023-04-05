@@ -33,18 +33,41 @@ It is used for GIS transfer.
 
 #### Redis Graph for Delivery Grouping, Connections and Visualization
 
-Example group result:
+Dataset contains latitudes and longitudes of restaurant and delivery addresses in the original form. 
+This information is converted to hexagon id (hex id) with using **H3** library to group delivery addresses in the same hex id and reduce the dimension. 
+Also, for the future predictions for unknown locations, distance from source and destination locations are calculated and 
+added to dataset as a column. It increases the success the **CatBoost Regressor** model.
 
-![Group Result with Polars](images/group_polars.png "Group Result with Polars")
+- **Grouping:** There may be many orders between one restaurant and one delivery location in hexagon form, so to avoid multiple nodes 
+represents one delivery id, grouping was a good choice. Median value of the delivery times take place as an edge attribute between source and destination nodes in the **Redis Graph**.
+  (If the data were enough and suitable for time-based analysis, this median value could be updated hourly.) <br> <br>
+
+  __*Example group result:*__
+
+  ![Group Result with Polars](images/group_polars.png "Group Result with Polars")
+
+- **Connections:** At first, graph is constructed with initial data (in dataset) after grouping. If new delivery data comes, source-destination connection in the graph is examined:
+  - If there is a connection already, data is sent to **OSRM backend** to increase the correctness of duration. OSRM returns optimal route duration after 
+  compares all routes (with alternatives) durations with their time and distance parameters. Lastly, the **mean** of the edge duration and OSRM duration values is 
+  used to update duration attribute of the edge. 
+  - If there is no connection yet (for existing nodes. other conditions will be handled later), it means that there is no delivery between existing nodes. 
+  The duration of delivery is found out by **CatBoost Regressor** model and edge is created among nodes. <br> <br>
+
+    __*Example new edge creation for RedisGraph:*__ (yellow->source, orange->destination) <br><br>
+  
+    ![New Edge Request Schema](images/new_edge_request.png "New Edge Request Schema")
+
+    ![New Edge Schema](images/new_edge.png "New Edge Schema")
+
+    __*Example edge update for RedisGraph:*__ <br><br>
+  
+    ![Before Update Schema](images/before_update_edge.png "Before Update Schema")
+  
+    ![Edge Update Request Schema](images/updated_edge_request.png "New Edge Request Schema")
+
+    ![Edge Update Schema](images/update_edge.png "Edge Update Schema")
 
 
-Example RedisGraph:
-
-![Graph Schema](images/graph.png "Graph Schema")
-
-Example RedisGraph Node Structure with Delivery Durations Median Value:
-
-![Small Graph Schema](images/small_graph.png "Small Graph Schema")
 
 
 **A new Redis Graph would be created for each hour but there is no enough data.**
