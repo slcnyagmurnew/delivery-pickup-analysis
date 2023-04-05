@@ -2,7 +2,7 @@
 
 #### Setup OSRM with Docker (with the help of steps in https://hub.docker.com/r/osrm/osrm-backend/)
 
-Food Delivery Dataset is on India map, so to get India information from OSRM first:
+[Food Delivery Dataset](https://www.kaggle.com/datasets/gauravmalik26/food-delivery-dataset?datasetId=2515893&sortBy=dateRun&tab=profile) is on India map, so to get India information from OSRM first:
 
 ```angular2html
 wget http://download.geofabrik.de/asia/india-latest.osm.pbf
@@ -53,19 +53,19 @@ represents one delivery id, grouping was a good choice. Median value of the deli
   - If there is no connection yet (for existing nodes. other conditions will be handled later), it means that there is no delivery between existing nodes. 
   The duration of delivery is found out by **CatBoost Regressor** model and edge is created among nodes. <br> <br>
 
-    __*Example new edge creation for RedisGraph:*__ (yellow->source, orange->destination) <br><br>
-  
-    ![New Edge Request Schema](images/new_edge_request.png "New Edge Request Schema")
+  __*Example new edge creation for RedisGraph:*__ (yellow->source, orange->destination) <br><br>
 
-    ![New Edge Schema](images/new_edge.png "New Edge Schema")
+  ![New Edge Request Schema](images/new_edge_request.png "New Edge Request Schema")
 
-    __*Example edge update for RedisGraph:*__ <br><br>
-  
-    ![Before Update Schema](images/before_update_edge.png "Before Update Schema")
-  
-    ![Edge Update Request Schema](images/updated_edge_request.png "New Edge Request Schema")
+  ![New Edge Schema](images/new_edge.png "New Edge Schema")
 
-    ![Edge Update Schema](images/update_edge.png "Edge Update Schema")
+  __*Example edge update for RedisGraph:*__ <br><br>
+
+  ![Before Update Schema](images/before_update_edge.png "Before Update Schema")
+
+  ![Edge Update Request Schema](images/updated_edge_request.png "New Edge Request Schema")
+
+  ![Edge Update Schema](images/update_edge.png "Edge Update Schema")
 
 
 
