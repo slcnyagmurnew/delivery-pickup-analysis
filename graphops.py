@@ -114,19 +114,23 @@ def predict_delivery(data: dict, hex_data: dict):
     empty, result_set = check_location_pairs_exist_in_graph(source_hex_id=hex_data["Restaurant_hex_id"],
                                                             destination_hex_id=hex_data["Delivery_hex_id"])
 
+    # get osrm result for both two options
+    osrm_results = get_route(res_hex_id=hex_data["Restaurant_hex_id"],
+                             del_hex_id=hex_data["Delivery_hex_id"])
+    optimal_result = math.ceil(osrm_results[0]["duration"] / 60)
+    print(f"Road result: {optimal_result}")
     if not empty:
         graph_duration = result_set[0][0]
-        osrm_results = get_route(res_hex_id=hex_data["Restaurant_hex_id"],
-                                 del_hex_id=hex_data["Delivery_hex_id"])
-        optimal_result = math.ceil(osrm_results[0]["duration"] / 60)
         print(f"Existing result in Graph: {graph_duration}")
-        print(f"Road result: {optimal_result}")
         print(f"Difference between graph data and OSRM result: {abs(graph_duration - optimal_result)}")
         return (graph_duration + optimal_result) / 2, True
     else:
         print("Not exists in Redis Graph, prediction started..")
-        m = load_catboost_regressor_model()
-        return m.predict(list(data.values())), False
+        m = load_catboost_regressor_model()  # predict duration with model
+        model_duration = m.predict(list(data.values()))
+        print(f"Model prediction result: {model_duration}")
+        print(f"Difference between prediction data and OSRM result: {abs(model_duration - optimal_result)}")
+        return (model_duration + optimal_result) / 2, False
 
 
 def update_edge_of_graph(hex_data, new_duration):
