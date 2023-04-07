@@ -51,7 +51,8 @@ represents one delivery id, grouping was a good choice. Median value of the deli
   compares all routes (with alternatives) durations with their time and distance parameters. Lastly, the **mean** of the edge duration and OSRM duration values is 
   used to update duration attribute of the edge. 
   - If there is no connection yet (for existing nodes. other conditions will be handled later), it means that there is no delivery between existing nodes. 
-  The duration of delivery is found out by **CatBoost Regressor** model and edge is created among nodes. <br> <br>
+  The duration of delivery is found out by **CatBoost Regressor** model referencing the previous deliveries' features. Also, **OSRM** result is calculated for from-to locations
+  and edge is created among nodes with the **mean** of the model prediction and the OSRM result. <br> <br>
 
   __*Example new edge creation for RedisGraph:*__ (yellow->source, orange->destination) <br><br>
 
@@ -70,4 +71,4 @@ represents one delivery id, grouping was a good choice. Median value of the deli
 
 
 
-**A new Redis Graph would be created for each hour but there is no enough data.**
+**A new Redis Graph would be created for each hour but there is no enough data for time series. Also, this data can be used to detect novelties with different techniques (ml, statistics etc.)**
