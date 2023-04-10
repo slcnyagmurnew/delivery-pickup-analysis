@@ -1,5 +1,10 @@
 ### Delivery Pickup Analysis with Food Delivery Data
 
+This project includes creating graph with the restaurant and the grouped delivery locations with median value of delivery times,
+creating ML model using delivery features (distance, traffic, weather condition etc.) to predict incoming order delivery time and using OSRM 
+to find duration and distance of the optimal route. 
+
+
 #### Setup OSRM with Docker (with the help of steps in https://hub.docker.com/r/osrm/osrm-backend/)
 
 [Food Delivery Dataset](https://www.kaggle.com/datasets/gauravmalik26/food-delivery-dataset?datasetId=2515893&sortBy=dateRun&tab=profile) is on India map, so to get India information from OSRM first:
