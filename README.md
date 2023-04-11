@@ -1,4 +1,4 @@
-### Delivery Pickup Analysis with Food Delivery Data
+## Delivery Pickup Analysis with Food Delivery Data
 
 This project includes creating graph with the restaurant and the grouped delivery locations with median value of delivery times,
 creating ML model using delivery features (distance, traffic, weather condition etc.) to predict incoming order delivery time and using OSRM 
@@ -36,7 +36,7 @@ docker run -t -d -i -p 5000:5000 -v "${PWD}/data:/data" osrm/osrm-backend osrm-r
 - The meaning of .osm is OpenStreetMap and .pbf file is an alternative to XML format, has smaller size. 
 It is used for GIS transfer.
 
-#### Redis Graph for Delivery Grouping, Connections and Visualization
+### Redis Graph for Delivery Grouping, Connections and Visualization
 
 Dataset contains latitudes and longitudes of restaurant and delivery addresses in the original form. 
 This information is converted to hexagon id (hex id) with using **H3** library to group delivery addresses in the same hex id and reduce the dimension. 
@@ -77,3 +77,11 @@ represents one delivery id, grouping was a good choice. Median value of the deli
 
 
 **A new Redis Graph would be created for each hour but there is no enough data for time series. Also, this data can be used to detect novelties with different techniques (ml, statistics etc.)**
+
+### Run
+
+System will be ready to accept requests from **FastApi** in **localhost:3000** after:
+
+```angular2html
+docker-compose up -d --build
+```
