@@ -25,7 +25,7 @@ docker run -t -v "${PWD}/data:/data" osrm/osrm-backend osrm-customize /data/indi
 ```
 **Note:** There must be enough space to execute Docker commands in your machine, otherwise Docker will exit with code **137 (out of memory)**.
 
-- System Information <br><br>
+- System Information: Docker processes allocate memory of **18-24 GB** (approximately).<br><br>
 
     ![System Info](images/sys_info.png "System Info")
 
