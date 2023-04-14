@@ -76,7 +76,15 @@ represents one delivery id, grouping was a good choice. Median value of the deli
 
 
 
-**A new Redis Graph would be created for each hour but there is no enough data for time series. Also, this data can be used to detect novelties with different techniques (ml, statistics etc.)**
+A new Redis Graph would be created for each hour but there is no enough data for time series. Also, this data can be used to detect novelties with different techniques (ml, statistics etc.)
+
+### LightGBM - CatBoost Comparison with MLFLow
+
+Two well-known ML regression models were compared for the delivery dataset. LightGBM which is the winner of the M5 (Makridakis) competition and 
+CatBoost that has automatic label encoding functionality comparison with different parameters results are in below.
+
+![MLFlow Schema](images/mlflow-comparison.png "MLFLow Schema")
+
 
 ### Run
 
