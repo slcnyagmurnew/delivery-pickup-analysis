@@ -85,6 +85,17 @@ CatBoost that has automatic label encoding functionality comparison with differe
 
 ![MLFlow Schema](images/mlflow-comparison.png "MLFLow Schema")
 
+To obtain results, run:
+
+```angular2html
+python3 mlflow_comparison.py
+```
+and go to MLFlow UI via:
+
+```angular2html
+mlflow ui
+```
+
 
 ### Run
 
