@@ -18,6 +18,12 @@ logger = logging.getLogger(__name__)
 
 
 def eval_metrics(real, pred) -> dict:
+    """
+    For all selected ML algorithms, calculate desired evaluation metrics
+    :param real: expected result
+    :param pred: predicted result
+    :return: root mean squared, mean absolute percentage errors and r2 score
+    """
     rmse = np.sqrt(mean_squared_error(y_true=real, y_pred=pred))
     mape = mean_absolute_percentage_error(y_true=real, y_pred=pred)
     r2 = r2_score(y_true=real, y_pred=pred)
@@ -26,6 +32,15 @@ def eval_metrics(real, pred) -> dict:
 
 
 def mlflow_with_catboost(X_train, y_train, X_test, y_test, params: dict):
+    """
+    Run MLFlow for CatBoost with its parameters
+    :param X_train: x_train
+    :param y_train: y_train
+    :param X_test: x_test
+    :param y_test: y_test
+    :param params: parameters for monitoring in MLFLow UI
+    :return:
+    """
     with mlflow.start_run():
         n_estimators = params["n_estimators"]
         learning_rate = params["learning_rate"]
@@ -64,6 +79,15 @@ def mlflow_with_catboost(X_train, y_train, X_test, y_test, params: dict):
 
 
 def mlflow_with_lightgbm(X_train, y_train, X_test, y_test, params: dict):
+    """
+    Run MLFlow for LightGBM with its parameters
+    :param X_train: x_train
+    :param y_train: y_train
+    :param X_test: x_test
+    :param y_test: y_test
+    :param params: parameters for monitoring in MLFLow UI
+    :return:
+    """
     with mlflow.start_run():
         num_leaves = params["num_leaves"]
         boosting_type = params["boosting_type"]
@@ -95,6 +119,11 @@ def mlflow_with_lightgbm(X_train, y_train, X_test, y_test, params: dict):
 
 
 def encoding_data(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Basic label encoder function to work with LightGBM
+    :param df: updated category features from string type to numerical type
+    :return: updated dataframe
+    """
     label_encoder = preprocessing.LabelEncoder()
     df["Road_traffic_density"] = label_encoder.fit_transform(df["Road_traffic_density"])
     df["Type_of_vehicle"] = label_encoder.fit_transform(df["Type_of_vehicle"])
@@ -103,6 +132,14 @@ def encoding_data(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def run_multiple_ml_models(X_train, X_test, y_train, y_test):
+    """
+    Run both LightGBM and CatBoost models in one function with desired parameters in config file
+    :param X_train: x_train
+    :param y_train: y_train
+    :param X_test: x_test
+    :param y_test: y_test
+    :return:
+    """
     with open("config.json", "r") as f:
         cfg = json.load(f)
     f.close()
@@ -112,13 +149,9 @@ def run_multiple_ml_models(X_train, X_test, y_train, y_test):
         params = dict(model["parameters"])
 
         param_keys = list(params.keys())
-        print(param_keys)
         param_values = list(params.values())
-        print(param_values)
 
-        for x in list(itertools.product(*param_values)):
-            print(x)
-            print(model_name.lower())
+        for x in list(itertools.product(*param_values)):  # get cartesian product of all params
             if "cat" in model_name.lower():
                 mlflow_with_catboost(X_train, y_train, X_test, y_test, params={param_keys[0]: x[0],
                                                                                param_keys[1]: x[1]})
