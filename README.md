@@ -90,7 +90,7 @@ To obtain results, run:
 ```angular2html
 python3 mlflow_comparison.py
 ```
-and go to MLFlow UI via:
+and go to MLFlow UI runs on **localhost:5000** via:
 
 ```angular2html
 mlflow ui
