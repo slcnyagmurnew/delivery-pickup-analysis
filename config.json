@@ -4,7 +4,7 @@
       "model_name": "CatBoostRegressorModel",
       "parameters": {
         "n_estimators": [
-          200, 100
+          200, 100, 300
         ],
         "learning_rate": [
           0.3, 0.2
