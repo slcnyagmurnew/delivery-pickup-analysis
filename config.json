@@ -1,0 +1,26 @@
+{
+  "models": [
+    {
+      "model_name": "CatBoostRegressorModel",
+      "parameters": {
+        "n_estimators": [
+          200, 100
+        ],
+        "learning_rate": [
+          0.3, 0.2
+        ]
+      }
+    },
+    {
+      "model_name": "LightGBM",
+      "parameters": {
+        "boosting_type": [
+          "dart", "gbdt"
+        ],
+        "num_leaves": [
+          24, 31
+        ]
+      }
+    }
+  ]
+}
